@@ -292,10 +292,9 @@ public class AnsibleResourceModelSource implements ResourceModelSource {
           }catch(Exception ex){
             System.out.println("[warn] Problem getting the ansible_host attribute from node " + hostname);
           }
+          node.setHostname(hostname);
 
           String nodename = root.get("inventory_hostname").getAsString();
-
-          node.setHostname(hostname);
           node.setNodename(nodename);
 
           String username = System.getProperty("user.name"); // TODO better default?
@@ -308,13 +307,15 @@ public class AnsibleResourceModelSource implements ResourceModelSource {
           }
           node.setUsername(username);
 
+          // Add groups as tags, except ignored tag prefix
           HashSet<String> tags = new HashSet<>();
           for (JsonElement ele : root.getAsJsonArray("group_names")) {
             if (ignoreTagPrefix != null && ignoreTagPrefix.length() > 0 && ele.getAsString().startsWith(ignoreTagPrefix)) continue;
             tags.add(ele.getAsString());
           }
+          // Add extraTag to node
           if (extraTag != null && extraTag.length() > 0) {
-          tags.add(extraTag);
+            tags.add(extraTag);
           }
           node.setTags(tags);
 
@@ -354,6 +355,7 @@ public class AnsibleResourceModelSource implements ResourceModelSource {
             node.setOsVersion(root.get("ansible_kernel").getAsString());
           }
 
+          // Add Ansible interesting vars as node attributes
           // JSON-Path -> Attribute-Name
           Map<String, String> interestingItems = new HashMap<>();
 
@@ -430,6 +432,62 @@ public class AnsibleResourceModelSource implements ResourceModelSource {
               }
             }
           }
+
+          // Add ALL vars as node attributes, except Ansible Special variables, as of Ansible 2.9
+          // https://docs.ansible.com/ansible/latest/reference_appendices/special_variables.html
+          ArrayList<String> specialVarsList = new ArrayList<String>();
+          specialVarsList.add("ansible_become_user");
+          specialVarsList.add("ansible_become_pass");
+          specialVarsList.add("ansible_become_password");
+          specialVarsList.add("ansible_check_mode");
+          specialVarsList.add("ansible_connection");
+          specialVarsList.add("ansible_dependent_role_names");
+          specialVarsList.add("ansible_diff_mode");
+          specialVarsList.add("ansible_facts");
+          specialVarsList.add("ansible_forks");
+          specialVarsList.add("ansible_host");
+          specialVarsList.add("ansible_index_var");
+          specialVarsList.add("ansible_inventory_sources");
+          specialVarsList.add("ansible_limit");
+          specialVarsList.add("ansible_local");
+          specialVarsList.add("ansible_loop");
+          specialVarsList.add("ansible_loop_var");
+          specialVarsList.add("ansible_parent_role_names");
+          specialVarsList.add("ansible_parent_role_paths");
+          specialVarsList.add("ansible_play_batch");
+          specialVarsList.add("ansible_play_hosts");
+          specialVarsList.add("ansible_play_hosts_all");
+          specialVarsList.add("ansible_play_name");
+          specialVarsList.add("ansible_play_role_names");
+          specialVarsList.add("ansible_playbook_python");
+          specialVarsList.add("ansible_python_interpreter");
+          specialVarsList.add("ansible_role_names");
+          specialVarsList.add("ansible_run_tags");
+          specialVarsList.add("ansible_search_path");
+          specialVarsList.add("ansible_ssh_pass");
+          specialVarsList.add("ansible_skip_tags");
+          specialVarsList.add("ansible_user");
+          specialVarsList.add("ansible_verbosity");
+          specialVarsList.add("ansible_version");
+          // TODO: allow .startsWith("ansible_*") filter
+          specialVarsList.add("discovered_interpreter_python");
+          specialVarsList.add("facts");   // used to gather host_vars 
+          specialVarsList.add("gather_subset");
+          specialVarsList.add("group_names");
+          specialVarsList.add("groups");
+          specialVarsList.add("hostvars");
+          specialVarsList.add("inventory_dir");
+          specialVarsList.add("inventory_file");
+          specialVarsList.add("inventory_hostname");
+          specialVarsList.add("inventory_hostname_short");
+          specialVarsList.add("module_setup");
+          specialVarsList.add("omit");
+          specialVarsList.add("play_hosts");
+          specialVarsList.add("playbook_dir");
+          specialVarsList.add("role_name");
+          specialVarsList.add("role_names");
+          specialVarsList.add("role_path");
+          specialVarsList.add("tmpdir");  // used to gather host_vars 
 
           nodes.putNode(node);
         }

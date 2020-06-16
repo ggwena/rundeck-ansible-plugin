@@ -485,6 +485,17 @@ public class AnsibleResourceModelSource implements ResourceModelSource {
           specialVarsList.add("role_names");
           specialVarsList.add("role_path");
 
+          for (String hostVar : root.keySet()) {
+            // if hostVar in specialVarList ; continue
+            if (specialVarsList.contains(hostVar)) continue;
+            if (root.get(hostVar).isJsonPrimitive()) {
+              System.out.println("Node '" + hostname +"': Add Attribute '" + hostVar +"':'" + root.get(hostVar).getAsString() +"'");
+              node.setAttribute(hostVar, root.get(hostVar).getAsString());
+            }
+            // skiping if hostVar is not a Primitive
+            System.out.println("Node '" + hostname +"': Skipping Attribute '" + hostVar +"'");
+          }
+
           nodes.putNode(node);
         }
         directoryStream.close();

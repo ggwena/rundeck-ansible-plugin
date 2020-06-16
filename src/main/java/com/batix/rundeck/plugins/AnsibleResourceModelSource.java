@@ -437,6 +437,8 @@ public class AnsibleResourceModelSource implements ResourceModelSource {
           // https://docs.ansible.com/ansible/latest/reference_appendices/special_variables.html
           ArrayList<String> specialVarsList = new ArrayList<String>();
           specialVarsList.add("ansible_become_user");
+          specialVarsList.add("ansible_become_pass");
+          specialVarsList.add("ansible_become_password");
           specialVarsList.add("ansible_check_mode");
           specialVarsList.add("ansible_connection");
           specialVarsList.add("ansible_dependent_role_names");
@@ -469,6 +471,7 @@ public class AnsibleResourceModelSource implements ResourceModelSource {
           specialVarsList.add("ansible_version");
           // TODO: allow .startsWith("ansible_*") filter
           specialVarsList.add("discovered_interpreter_python");
+          specialVarsList.add("facts");   // used to gather host_vars 
           specialVarsList.add("gather_subset");
           specialVarsList.add("group_names");
           specialVarsList.add("groups");
@@ -484,6 +487,7 @@ public class AnsibleResourceModelSource implements ResourceModelSource {
           specialVarsList.add("role_name");
           specialVarsList.add("role_names");
           specialVarsList.add("role_path");
+          specialVarsList.add("tmpdir");  // used to gather host_vars 
 
           Gson gson = new Gson();
           String hostVarJsonString ;

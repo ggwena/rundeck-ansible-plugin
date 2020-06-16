@@ -489,6 +489,10 @@ public class AnsibleResourceModelSource implements ResourceModelSource {
           specialVarsList.add("role_path");
           specialVarsList.add("tmpdir");  // used to gather host_vars 
 
+          // specific
+          specialVarsList.add("pwdm_pass");
+          specialVarsList.add("pwdm_user");
+
           Gson gson = new Gson();
           String hostVarJsonString ;
           for (String hostVar : root.keySet()) {

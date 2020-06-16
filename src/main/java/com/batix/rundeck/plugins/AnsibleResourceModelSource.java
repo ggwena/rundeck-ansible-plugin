@@ -490,15 +490,16 @@ public class AnsibleResourceModelSource implements ResourceModelSource {
           for (String hostVar : root.keySet()) {
             // don't add Ansible special vars
             if (specialVarsList.contains(hostVar)) {
-              System.out.println("Node '" + hostname +"': ignore special var '" + hostVar +"'");
+              // System.out.println("Node '" + hostname +"': ignore special var '" + hostVar +"'");
               continue;
             }
             if (root.get(hostVar).isJsonPrimitive()) {
-              System.out.println("Node '" + hostname +"': Add Attribute '" + hostVar +"':'" + root.get(hostVar).getAsString() +"'");
+              // System.out.println("Node '" + hostname +"': Add Attribute '" + hostVar +"':'" + root.get(hostVar).getAsString() +"'");
               node.setAttribute(hostVar, root.get(hostVar).getAsString());
             } else {
-              // skiping if hostVar is not a Primitive
-              System.out.println("Node '" + hostname +"': Skipping Attribute '" + hostVar +"' " + root.get(hostVar).getClass() );
+              // hostVar is not a Primitive: JsonArray or JsonObject
+              System.out.println("Node '" + hostname +"': Adding Attribute '" + hostVar +"' " + root.get(hostVar).getClass() +
+                " as JsonString");
               hostVarJsonString = gson.toJson(root.get(hostVar)) ;
               if (hostVarJsonString != null) {
                 System.out.println( hostVarJsonString );

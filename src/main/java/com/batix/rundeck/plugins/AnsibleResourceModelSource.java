@@ -13,7 +13,7 @@ import com.dtolabs.rundeck.core.resources.ResourceModelSource;
 import com.dtolabs.rundeck.core.resources.ResourceModelSourceException;
 import com.dtolabs.rundeck.core.plugins.ScriptDataContextUtil;
 import com.dtolabs.rundeck.core.plugins.configuration.ConfigurationException;
-
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -485,15 +485,26 @@ public class AnsibleResourceModelSource implements ResourceModelSource {
           specialVarsList.add("role_names");
           specialVarsList.add("role_path");
 
+          Gson gson = new Gson();
+          String hostVarJsonString ;
           for (String hostVar : root.keySet()) {
-            // if hostVar in specialVarList ; continue
-            if (specialVarsList.contains(hostVar)) continue;
+            // don't add Ansible special vars
+            if (specialVarsList.contains(hostVar)) {
+              System.out.println("Node '" + hostname +"': ignore special var '" + hostVar +"'");
+              continue;
+            }
             if (root.get(hostVar).isJsonPrimitive()) {
               System.out.println("Node '" + hostname +"': Add Attribute '" + hostVar +"':'" + root.get(hostVar).getAsString() +"'");
               node.setAttribute(hostVar, root.get(hostVar).getAsString());
+            } else {
+              // skiping if hostVar is not a Primitive
+              System.out.println("Node '" + hostname +"': Skipping Attribute '" + hostVar +"' " + root.get(hostVar).getClass() );
+              hostVarJsonString = gson.toJson(root.get(hostVar)) ;
+              if (hostVarJsonString != null) {
+                System.out.println( hostVarJsonString );
+                node.setAttribute(hostVar, hostVarJsonString);
+              }
             }
-            // skiping if hostVar is not a Primitive
-            System.out.println("Node '" + hostname +"': Skipping Attribute '" + hostVar +"'");
           }
 
           nodes.putNode(node);

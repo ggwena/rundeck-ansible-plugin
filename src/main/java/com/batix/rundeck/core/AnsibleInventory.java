@@ -3,21 +3,36 @@ package com.batix.rundeck.core;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 public class AnsibleInventory {
 
   public class AnsibleInventoryHosts {
 
-    protected Map<String, Map<String, String>> hosts = new HashMap<String, Map<String, String>>();
+    protected Map<String, JsonObject> hosts = new HashMap<String, JsonObject>();
     protected Map<String, AnsibleInventoryHosts> children = new HashMap<String, AnsibleInventoryHosts>();
 
     public AnsibleInventoryHosts addHost(String nodeName) {
-      hosts.put(nodeName, new HashMap<String, String>());
+      hosts.put(nodeName, new JsonObject());
       return this;
     }
 
     public AnsibleInventoryHosts addHost(String nodeName, String host, Map<String, String> attributes) {
       attributes.put("ansible_host", host);
-      hosts.put(nodeName, attributes);
+
+      // convert back 'String attribute.value' to JsonArray or JsonObject, when not a Primitive
+      JsonObject attributesJson = new JsonObject();
+      for (String attribute : attributes.keySet()) {
+        System.out.println("attributes: " + attribute + "="+ attributes.get(attribute));
+        // JsonElement attributeJson = new JsonParser().parse(attributes.get(attribute));
+        JsonElement attributeJson = new Gson().fromJson(attributes.get(attribute), JsonElement.class);
+        attributesJson.add(attribute, attributeJson);
+      }
+
+      hosts.put(nodeName, attributesJson);
       return this;
     }
 

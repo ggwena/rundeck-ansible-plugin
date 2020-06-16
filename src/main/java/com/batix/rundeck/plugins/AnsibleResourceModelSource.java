@@ -292,10 +292,9 @@ public class AnsibleResourceModelSource implements ResourceModelSource {
           }catch(Exception ex){
             System.out.println("[warn] Problem getting the ansible_host attribute from node " + hostname);
           }
+          node.setHostname(hostname);
 
           String nodename = root.get("inventory_hostname").getAsString();
-
-          node.setHostname(hostname);
           node.setNodename(nodename);
 
           String username = System.getProperty("user.name"); // TODO better default?
@@ -308,13 +307,15 @@ public class AnsibleResourceModelSource implements ResourceModelSource {
           }
           node.setUsername(username);
 
+          // Add groups as tags, except ignored tag prefix
           HashSet<String> tags = new HashSet<>();
           for (JsonElement ele : root.getAsJsonArray("group_names")) {
             if (ignoreTagPrefix != null && ignoreTagPrefix.length() > 0 && ele.getAsString().startsWith(ignoreTagPrefix)) continue;
             tags.add(ele.getAsString());
           }
+          // Add extraTag to node
           if (extraTag != null && extraTag.length() > 0) {
-          tags.add(extraTag);
+            tags.add(extraTag);
           }
           node.setTags(tags);
 
@@ -354,6 +355,7 @@ public class AnsibleResourceModelSource implements ResourceModelSource {
             node.setOsVersion(root.get("ansible_kernel").getAsString());
           }
 
+          // Add Ansible interesting vars as node attributes
           // JSON-Path -> Attribute-Name
           Map<String, String> interestingItems = new HashMap<>();
 

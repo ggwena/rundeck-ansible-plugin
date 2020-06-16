@@ -460,7 +460,6 @@ public class AnsibleResourceModelSource implements ResourceModelSource {
           specialVarsList.add("pwdm_pass");
           specialVarsList.add("pwdm_user");
 
-          Gson gson = new Gson();
           String hostVarJsonString ;
           hostVarsLoop:
           for (String hostVar : root.keySet()) {
@@ -478,7 +477,7 @@ public class AnsibleResourceModelSource implements ResourceModelSource {
               // hostVar is not a Primitive: JsonArray or JsonObject
               System.out.println("Node '" + hostname +"': Adding Attribute '" + hostVar +"' " + root.get(hostVar).getClass() +
                 " as JsonString");
-              hostVarJsonString = gson.toJson(root.get(hostVar)) ;
+              hostVarJsonString = new Gson().toJson(root.get(hostVar)) ;
               if (hostVarJsonString != null) {
                 System.out.println( "  " + hostVarJsonString );
                 node.setAttribute(hostVar, hostVarJsonString);

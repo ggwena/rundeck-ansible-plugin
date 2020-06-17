@@ -25,10 +25,9 @@ public class AnsibleInventory {
 
     public AnsibleInventoryHosts addHost(String nodeName, String host, Map<String, String> attributes) {
       attributes.put("ansible_host", host);
-
-      // deserialize 'String attribute.value' to JsonArray or JsonElement, when not a Primitive
       Map<String, JsonElement> attributesJson = new HashMap<String, JsonElement>();
-      
+
+      // Add ALL node attributes as inventory host variables
       for (String attribute : attributes.keySet()) {
         JsonElement json;
         try {

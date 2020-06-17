@@ -1,5 +1,6 @@
 package com.batix.rundeck.core;
 
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,6 +8,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 
 public class AnsibleInventory {
 
@@ -28,7 +30,10 @@ public class AnsibleInventory {
       
       for (String attribute : attributes.keySet()) {
         System.out.println("attributes: " + attribute + "="+ attributes.get(attribute));
-        JsonElement json = new JsonParser().parse(attributes.get(attribute));
+        JsonReader reader = new JsonReader(new StringReader(attributes.get(attribute)));
+        reader.setLenient(true);
+        JsonElement json = new JsonParser().parse(reader);
+
         System.out.println("attribute " + attribute + " is jsonObject? " + json.isJsonObject());
         System.out.println("attribute " + attribute + " is isJsonArray? " + json.isJsonArray());
         System.out.println("attribute " + attribute + " is isJsonNull? " + json.isJsonNull());
@@ -37,12 +42,8 @@ public class AnsibleInventory {
         // JsonObject attributeJson = json.getAsJsonObject();
         // attributesJson.put(attribute, attributeJson);
 
-        attributes: bios_date=12/12/2018
-        Use JsonReader.setLenient(true) to accept malformed JSON
-
         System.out.println("json: " + json);
         attributesJson.put(attribute, json);
-
 
         // JsonElement attributeJson = new JsonParser().parse(attributes.get(attribute));
         // JsonElement attributeJson = new Gson().fromJson(attributes.get(attribute), );
